@@ -1,0 +1,59 @@
+trigger: 
+  - main
+     
+pool:
+  name: Azure Pipelines
+  vmImage: 'windows-latest'
+
+stages:
+- stage: 'Build'
+  displayName: 'Build ADF'
+
+  jobs:
+  - job:
+    steps:
+    - template: adf-ci-steps.yml
+
+
+
+- stage: 'Test'
+  displayName: 'Deploy to TEST'
+  dependsOn: Build
+  condition: succeeded('Build')
+
+  jobs:
+  - deployment: DeployToTest
+    pool:
+      vmImage: 'ubuntu-latest'
+    environment: ADF-Test
+    variables:
+    - template: ../variables/ADF-Test.yml
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - template: adf-cd-steps.yml
+            parameters:
+              environment: ADF-Test
+              azureResourceManagerConnection: 'MMG_CICD_ServicePrincipal'
+
+- stage: 'Prod'
+  displayName: 'Deploy to PROD'
+  dependsOn: Test
+  condition: succeeded('Test')
+
+  jobs:
+  - deployment: DeployToProd
+    pool:
+      vmImage: 'ubuntu-latest'
+    environment: ADF-Prod
+    variables:
+    - template: ../variables/ADF-Prod.yml
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - template: adf-cd-steps.yml
+            parameters:
+              environment: ADF-Prod
+              azureResourceManagerConnection: 'MMG_CICD_ServicePrincipal'

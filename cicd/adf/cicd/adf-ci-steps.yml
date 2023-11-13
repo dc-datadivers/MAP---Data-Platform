@@ -1,0 +1,56 @@
+steps:
+
+# Installs Node and the npm packages saved in your package.json file in the build
+
+- task: NodeTool@0
+  inputs:
+    versionSpec: '14.x'
+  displayName: 'Install Node.js'
+
+- task: Npm@1
+  inputs:
+    command: 'install'
+    verbose: true
+    workingDir: '$(Build.Repository.LocalPath)'
+  displayName: 'Install npm package'
+
+# Validates all of the ADF resources in the repository. You will get the same validation errors as when "Validate All" is clicked
+# Enter the appropriate subscription and name for the source factory 
+
+- task: Npm@1
+  inputs:
+    command: 'custom'
+    customCommand: 'run build validate $(Build.Repository.LocalPath) /subscriptions/5b4ee21e-2989-47ef-af55-eb8ce9ad1d06/resourceGroups/Mmgs1auaearg102/providers/Microsoft.DataFactory/factories/mmg-aue-map-adf01-e3'
+    workingDir: '$(Build.Repository.LocalPath)'
+  displayName: 'Validate'
+
+# Validate and then generate the ARM template into the destination folder. Same as clicking "Publish" from UX
+# The ARM template generated is not published to the ‘Live’ version of the factory. Deployment should be done using a CI/CD pipeline. 
+
+- task: Npm@1
+  inputs:
+    command: 'custom'
+    customCommand: 'run build export $(Build.Repository.LocalPath) /subscriptions/5b4ee21e-2989-47ef-af55-eb8ce9ad1d06/resourceGroups/Mmgs1auaearg102/providers/Microsoft.DataFactory/factories/mmg-aue-map-adf01-e3 "export"'
+    workingDir: '$(Build.Repository.LocalPath)'
+  displayName: 'Validate and Generate ARM template'
+
+# Publish the Artifact to be used as a source for a release pipeline
+
+- task: CopyFiles@2
+  displayName: 'Copy ADF export'
+  inputs:
+    SourceFolder: '$(Build.Repository.LocalPath)'
+    Contents: |
+      **\export\**
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+- task: CopyFiles@2
+  displayName: 'Copy ADF environment config'
+  inputs:
+    SourceFolder: '$(Build.Repository.LocalPath)'
+    Contents: |
+      **\environments\**
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+- publish: '$(Build.ArtifactStagingDirectory)'
+  artifact: 'AzureDataFactoryContent'

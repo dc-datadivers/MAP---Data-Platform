@@ -1,0 +1,25 @@
+parameters:
+- name: environment
+- name: subscription
+- name: server
+- name: database
+
+jobs:
+- deployment: DeployDWDB
+  environment: ${{ parameters.environment }}
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+        - task: SqlAzureDacpacDeployment@1
+          displayName: 'Azure SQL Dacpac Task'
+          inputs:
+            azureSubscription: ${{ parameters.subscription }}
+            AuthenticationType: 'servicePrincipal'
+            serverName: ${{ parameters.server }}
+            databaseName: ${{ parameters.database }}
+            dacpacFile: '$(Pipeline.Workspace)\drop\DW.dacpac'
+            additionalArguments: >- 
+              /p:DropObjectsNotInSource=True  
+              /p:ExcludeObjectTypes=Users;Logins;RoleMembership;Permissions 
+              /p:BlockOnPossibleDataLoss=false

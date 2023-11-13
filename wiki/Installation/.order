@@ -1,0 +1,12 @@
+00-Release-Notes
+01-Deploy-Azure-resources
+02-Configure-data-warehouse
+03-Configure-sample-data
+04-Create-app-registrations-and-secrets
+05-Test-the-deployment
+06-Configure-Databricks-sample-notebooks
+07-Configure-pipeline-execution-costs
+08-Configure-CICD-pipelines
+09-Enable-Power-BI-dataset-refreshes
+10-Schedule-cost-management-exports
+Rollback

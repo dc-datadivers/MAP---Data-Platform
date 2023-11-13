@@ -1,0 +1,57 @@
+parameters:
+- name: environment
+  type: string
+
+- name: azureResourceManagerConnection
+  type: string
+
+steps:
+
+- task: DownloadPipelineArtifact@2
+  inputs:
+    buildType: 'current'
+    artifactName: 'AzureDataFactoryContent'
+    targetPath: '$(Pipeline.Workspace)'
+
+- task: AzurePowerShell@4
+  displayName: 'Pre Deployment script'
+  inputs:
+    azureSubscription: ${{ parameters.azureResourceManagerConnection }}
+    scriptType: filePath
+    scriptPath: $(Pipeline.Workspace)/AzureDataFactoryContent/export/PrePostDeploymentScript.ps1
+    scriptArguments:
+      -ArmTemplate "$(Pipeline.Workspace)/AzureDataFactoryContent/export/ARMTemplateForFactory.json" `
+      -ArmTemplateParameters "$(Pipeline.Workspace)/AzureDataFactoryContent/environments/${{ parameters.environment }}/adf-content.parameters.json" `
+      -ResourceGroupName $(resourceGroup) `
+      -DataFactoryName $(dataFactoryName) `
+      -predeployment $true `
+      -deleteDeployment $false
+    azurePowerShellVersion: latestVersion
+    pwsh: true
+
+- task: AzureResourceManagerTemplateDeployment@3
+  displayName: 'ARM: Data Factory Content'
+  inputs:
+    azureResourceManagerConnection: ${{ parameters.azureResourceManagerConnection }}
+    subscriptionId: $(subscription)
+    resourceGroupName: $(resourceGroup)
+    location: $(location)
+    csmFile: '$(Pipeline.Workspace)/AzureDataFactoryContent/export/ARMTemplateForFactory.json'
+    csmParametersFile: '$(Pipeline.Workspace)/AzureDataFactoryContent/environments/${{ parameters.environment }}/adf-content.parameters.json'
+
+- task: AzurePowerShell@4
+  displayName: 'Post Deployment script'
+  inputs:
+    azureSubscription: ${{ parameters.azureResourceManagerConnection }}
+    scriptType: filePath
+    scriptPath: $(Pipeline.Workspace)/AzureDataFactoryContent/export/PrePostDeploymentScript.ps1
+    scriptArguments:
+      -ArmTemplate "$(Pipeline.Workspace)/AzureDataFactoryContent/export/ARMTemplateForFactory.json" `
+      -ArmTemplateParameters "$(Pipeline.Workspace)/AzureDataFactoryContent/environments/${{ parameters.environment }}/adf-content.parameters.json" `
+      -ResourceGroupName $(resourceGroup) `
+      -DataFactoryName $(dataFactoryName) `
+      -predeployment $false `
+      -deleteDeployment $true
+    azurePowerShellVersion: latestVersion
+    pwsh: true
+

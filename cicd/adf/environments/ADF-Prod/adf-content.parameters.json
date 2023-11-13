@@ -1,0 +1,78 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "factoryName": {
+            "value": "mmg-aue-map-adf01-e1"
+        },
+        "LS_AzureSQLDatabase_connectionString": {
+            "value": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=@{linkedService().Host};Initial Catalog=@{linkedService().Database}"
+        },
+        "LS_DW_connectionString": {
+            "value": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=mmg-aue-map-sqs01-e1.database.windows.net;Initial Catalog=DW"
+        },
+        "LS_SQLServer_connectionString": {
+            "value": "Integrated Security=True;Data Source=@{linkedService().Host};Initial Catalog=@{linkedService().Database}"
+        },
+        "LS_AzureDatabricks_properties_typeProperties_domain": {
+            "value": "@linkedService().workspaceURL"
+        },
+        "LS_AzureDatabricks_properties_typeProperties_workspaceResourceId": {
+            "value": "@linkedService().workspaceResourceId"
+        },
+        "LS_DataLakeBronze_properties_typeProperties_serviceEndpoint": {
+            "value": "https://mmgauemapbronzestre1.blob.core.windows.net"
+        },
+        "LS_DataLakeSilver_properties_typeProperties_url": {
+            "value": "https://mmgauemapsilveradle1.dfs.core.windows.net"
+        },
+        "LS_FileServer_properties_typeProperties_host": {
+            "value": "@{linkedService().Host}"
+        },
+        "LS_FileServer_properties_typeProperties_userId": {
+            "value": "@{linkedService().User}"
+        },
+        "LS_KeyVault_properties_typeProperties_baseUrl": {
+            "value": "https://mmg-aue-dap-akv-prd-01.vault.azure.net/"
+        },
+        "LS_LogAnalytics_properties_typeProperties_url": {
+            "value": "https://api.loganalytics.io/v1/workspaces/0d40eac1-de20-4d1f-8fcb-7e929bf4929b"
+        },
+        "LS_REST_properties_typeProperties_url": {
+            "value": "@{linkedService().baseURL}"
+        },
+        "LS_SQLServer_properties_typeProperties_userName": {
+            "value": "@{linkedService().User}"
+        },
+        "TR_ScaleDownDW_properties_PL_ScaleDW_parameters_edition": {
+            "value": "GeneralPurpose"
+        },
+        "TR_ScaleDownDW_properties_PL_ScaleDW_parameters_serviceObjective": {
+            "value": "GP_S_Gen5_4"
+        },
+        "TR_ScaleUpDW_properties_PL_ScaleDW_parameters_edition": {
+            "value": "GeneralPurpose"
+        },
+        "TR_ScaleUpDW_properties_PL_ScaleDW_parameters_serviceObjective": {
+            "value": "GP_S_Gen5_8"
+        },
+        "default_properties_GP_SilverStorage_value": {
+            "value": "mmgauemapsilveradle1"
+        },
+        "default_properties_GP_BronzeStorage_value": {
+            "value": "mmgauemapbronzestre1"
+        },
+        "default_properties_GP_KeyVaultDNSName_value": {
+            "value": "https://mmg-aue-dap-akv-prd-01.vault.azure.net/"
+        },
+        "default_properties_GP_SubscriptionId_value": {
+            "value": "5b4ee21e-2989-47ef-af55-eb8ce9ad1d06"
+        },
+        "default_properties_GP_ResourceGroup_value": {
+            "value": "Mmgs1auaearg103"
+        },
+        "default_properties_GP_Timezone_value": {
+            "value": "W. Australia Standard Time"
+        }
+    }
+}

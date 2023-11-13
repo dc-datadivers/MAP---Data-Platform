@@ -1,0 +1,6 @@
+variables:
+  environment: "ADF-Prod"
+  resourceGroup: "Mmgs1auaearg103"
+  location: "australiaeast"
+  subscription: "5b4ee21e-2989-47ef-af55-eb8ce9ad1d06"
+  dataFactoryName: "mmg-aue-map-adf01-e1"

@@ -1,0 +1,69 @@
+trigger:
+ - main
+     
+pool:
+  name: Azure Pipelines
+  vmImage: 'windows-latest'
+  demands:
+  - msbuild
+  - visualstudio
+
+stages:
+- stage: 'Build'
+  displayName: 'Build DW solution'
+
+  jobs:
+  - job: Build
+    steps:
+      - task: VSBuild@1
+        displayName: 'Build solution'
+        inputs:
+          solution: '**\*.sln'
+          platform: 'any cpu'
+          configuration: 'Release'
+          msBuildArgs: "-noWarn:SQL71558,SQL71502"
+
+      - task: CopyFiles@2
+        displayName: 'Copy Files'
+        inputs:
+          sourceFolder: '$(Build.SourcesDirectory)'
+          flattenFolders: true
+          contents: '**\bin\**\*.dacpac'
+          targetFolder: '$(Build.ArtifactStagingDirectory)'
+        condition: succeededOrFailed()
+
+      - task: PublishBuildArtifacts@1
+        displayName: 'Publish Artifact'
+        inputs:
+          artifactname: 'drop'
+          targetPath: $(Build.ArtifactStagingDirectory)
+        condition: succeededOrFailed()
+
+
+
+- stage: 'Test'
+  displayName: 'Deploy to TEST'
+  dependsOn: Build
+  condition: succeeded('Build')
+
+  jobs:
+  - template: dw-deploy.yml
+    parameters:
+      environment: 'DW-Test' 
+      subscription: 'MMG_CICD_ServicePrincipal'
+      server: 'mmg-aue-dap-sql-tst.database.windows.net'
+      database: 'DW'
+
+
+- stage: 'Prod'
+  displayName: 'Deploy to PROD'
+  dependsOn: 'Test'
+  condition: succeeded('Test')
+
+  jobs:
+  - template: dw-deploy.yml
+    parameters:
+      environment: 'DW-Prod' 
+      subscription: 'MMG_CICD_ServicePrincipal'
+      server: 'mmg-aue-map-sqs01-e1.database.windows.net'
+      database: 'DW'
